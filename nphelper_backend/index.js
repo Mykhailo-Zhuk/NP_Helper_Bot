@@ -9,16 +9,15 @@ import { checkValidPhoneNumber } from './services/PhoneNumber.js';
 import { checkValidInvoice } from './services/Invoice.js';
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
-bot.start(
-  async (ctx) =>
-    await ctx.replyWithHTML(
-      `Привіт <b>${ctx.message.from.first_name ? ctx.message.from.first_name : 'Незнайомець'}</b>!`,
-      Markup.inlineKeyboard([
-        [Markup.button.callback('Отримати оплачену посилку', 'btn1')],
-        [Markup.button.callback('Залишити відгук', 'btn2')],
-      ]),
-    ),
-);
+bot.start(async (ctx) => {
+  await ctx.replyWithHTML(
+    `Привіт <b>${ctx.message.from.first_name ? ctx.message.from.first_name : 'Незнайомець'}</b>!`,
+    Markup.inlineKeyboard([
+      [Markup.button.callback('Отримати оплачену посилку', 'btn1')],
+      [Markup.button.callback('Залишити відгук', 'btn2')],
+    ]),
+  );
+});
 bot.help((ctx) => ctx.reply(outputMsg.commands));
 
 // Commands
@@ -42,6 +41,7 @@ bot.command('get_paid', async (ctx) => {
 // Actions btn1, btn2
 bot.action('btn1', async (ctx) => {
   try {
+    await ctx.answerCbQuery();
     await ctx.replyWithHTML(
       outputMsg.commandText[0],
       Markup.inlineKeyboard([
@@ -79,6 +79,7 @@ const addActionBot = (name, message, checkFnc) => {
         try {
           const { text } = ctx.message;
           const result = await checkFnc(ctx, text);
+          console.log(text);
           if (!result) return;
           axios
             .post('http://localhost:5000/api/queries/', result)
@@ -100,10 +101,18 @@ const addActionBot = (name, message, checkFnc) => {
                       // handle success
                       const { response } = res.data;
                       await ctx.replyWithHTML(message.actionsText[7]);
-                      if (response !== 'empty' || '') {
+                      console.log(ctx.message.text);
+                      // if (ctx.message.text === '/start' || '/help') {
+                      //   await ctx.replyWithHTML(message.actionsText[8]);
+                      //   clearInterval(timerId);
+                      // }
+                      if (response === 'empty' || '') return;
+                      if (response.toLowerCase() !== 'готово' || 'знайдено' || 'done' || 'ok') {
                         clearInterval(timerId);
-                        return await ctx.replyWithHTML(message.actionsText[8]);
+                        return await ctx.replyWithHTML(response);
                       }
+                      clearInterval(timerId);
+                      return await ctx.replyWithHTML(message.actionsText[9]);
                     })
                     .catch((error) => {
                       // handle error
@@ -113,7 +122,10 @@ const addActionBot = (name, message, checkFnc) => {
                 15000,
               );
               // Stop after 10 min
-              setTimeout(() => {
+              setTimeout((ctx) => {
+                ctx.replyWithHTML(
+                  'Можливо нам знадобиться більше часу для пошуку Вашої посилки або виникла іншого роду помилка. <b>Прошу зверніться до будь якого вільного оператора</b>',
+                );
                 clearInterval(timerId);
               }, 600000);
             })

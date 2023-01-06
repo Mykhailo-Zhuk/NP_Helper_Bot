@@ -21,10 +21,8 @@ app.use(function (req, res, next) {
 async function startApp() {
   try {
     await mongoose.set('strictQuery', true);
-    await mongoose.connect(
-      'mongodb+srv://qwerty:12345@cluster0.iro52vy.mongodb.net/?retryWrites=true&w=majority',
-      { useUnifiedTopology: true, useNewUrlParser: true },
-    );
+    await mongoose.connect(process.env.DB_URL, { useUnifiedTopology: true, useNewUrlParser: true });
+    // await mongoose.connect(process.env.DB_URL, { useUnifiedTopology: true, useNewUrlParser: true });
     app.listen(port, () => {
       console.log('Server started on port ' + port);
     });

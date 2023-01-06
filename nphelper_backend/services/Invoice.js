@@ -1,12 +1,12 @@
 import * as message from '../const.js';
 
 export const checkValidInvoice = async (ctx, inputData) => {
-  const number = inputData.match(/\d+/g)[0];
-  const lastName = inputData.match(/[A-Z]\w+|[а-щА-ЩЬьЮюЯяЇїІіЄєҐґ]+/g)[0];
+  const number = inputData.match(/\d+/g)?.[0];
+  const lastName = inputData.match(/[A-Z]\w+|[а-щА-ЩЬьЮюЯяЇїІіЄєҐґ]+/g)?.[0];
 
   // Missed number or lastName
   if (!number || !lastName) {
-    await ctx.replyWithHTML(message.actionsText[1]);
+    await ctx.replyWithHTML(message.actionsText[2]);
     return;
   }
 
