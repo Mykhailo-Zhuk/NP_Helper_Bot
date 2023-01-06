@@ -79,7 +79,6 @@ const addActionBot = (name, message, checkFnc) => {
         try {
           const { text } = ctx.message;
           const result = await checkFnc(ctx, text);
-          console.log(text);
           if (!result) return;
           axios
             .post('http://localhost:5000/api/queries/', result)
@@ -101,16 +100,14 @@ const addActionBot = (name, message, checkFnc) => {
                       // handle success
                       const { response } = res.data;
                       await ctx.replyWithHTML(message.actionsText[7]);
-                      console.log(ctx.message.text);
-                      // if (ctx.message.text === '/start' || '/help') {
-                      //   await ctx.replyWithHTML(message.actionsText[8]);
-                      //   clearInterval(timerId);
-                      // }
+
                       if (response === 'empty' || '') return;
+
                       if (response.toLowerCase() !== 'готово' || 'знайдено' || 'done' || 'ok') {
                         clearInterval(timerId);
                         return await ctx.replyWithHTML(response);
                       }
+
                       clearInterval(timerId);
                       return await ctx.replyWithHTML(message.actionsText[9]);
                     })
@@ -119,15 +116,15 @@ const addActionBot = (name, message, checkFnc) => {
                       clearInterval(timerId);
                       console.log(error.message);
                     }),
-                15000,
+                30000,
               );
-              // Stop after 10 min
+              // Stop after 5 min
               setTimeout((ctx) => {
                 ctx.replyWithHTML(
                   'Можливо нам знадобиться більше часу для пошуку Вашої посилки або виникла іншого роду помилка. <b>Прошу зверніться до будь якого вільного оператора</b>',
                 );
                 clearInterval(timerId);
-              }, 600000);
+              }, 300000);
             })
             .catch((error) => {
               // handle error
