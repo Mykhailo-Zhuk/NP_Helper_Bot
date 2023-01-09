@@ -9,7 +9,7 @@ import {
 export const fetchQueries = () => {
   return (dispatch) => {
     axios
-      .get('http://localhost:5000/api/queries')
+      .get('https://lazy-red-armadillo-gear.cyclic.app/api/queries')
       .then(function (response) {
         // handle success
         console.log('Fetching completed!');

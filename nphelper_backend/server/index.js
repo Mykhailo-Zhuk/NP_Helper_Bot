@@ -15,6 +15,7 @@ app.use('/api', router);
 
 app.use(function (req, res, next) {
   res.header('Access-Control-Allow-Origin', '*');
+  res.setHeader('Content-Type', 'text/plain');
   next();
 });
 
@@ -22,10 +23,7 @@ async function startApp() {
   try {
     await mongoose.set('strictQuery', true);
     await mongoose.connect(process.env.DB_URL, { useUnifiedTopology: true, useNewUrlParser: true });
-    // await mongoose.connect(process.env.DB_URL, { useUnifiedTopology: true, useNewUrlParser: true });
-    app.listen(port, () => {
-      console.log('Server started on port ' + port);
-    });
+    app.listen();
   } catch (error) {
     console.log(error.message);
   }

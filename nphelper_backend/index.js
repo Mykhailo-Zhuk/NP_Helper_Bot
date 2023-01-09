@@ -83,6 +83,7 @@ const addActionBot = (name, message, checkFnc) => {
           axios
             .post('http://localhost:5000/api/queries/', result)
             .then((res) => {
+              console.log('Case 1');
               // handle success
               const { _id, response } = res.data;
               if (!response || !_id) return;
@@ -97,6 +98,7 @@ const addActionBot = (name, message, checkFnc) => {
                   await axios
                     .get(`http://localhost:5000/api/queries/${res._id}`)
                     .then(async (res) => {
+                      console.log('Case 2');
                       // handle success
                       const { response } = res.data;
                       await ctx.replyWithHTML(message.actionsText[7]);
