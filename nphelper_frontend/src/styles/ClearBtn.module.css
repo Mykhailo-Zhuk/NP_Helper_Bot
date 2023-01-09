@@ -3,6 +3,7 @@
   justify-content: space-between;
   align-items: flex-start;
   margin: 30px 5px;
+  gap: 10px;
 }
 .textWrapper {
   display: flex;
@@ -44,6 +45,4 @@
   -moz-transform: scale(0.99);
   -ms-transform: scale(0.99);
   -o-transform: scale(0.99);
-}
-.updateBtnWrapper {
 }
