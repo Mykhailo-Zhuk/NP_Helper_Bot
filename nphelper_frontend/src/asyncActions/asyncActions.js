@@ -9,7 +9,7 @@ import {
 export const fetchQueries = () => {
   return (dispatch) => {
     axios
-      .get('https://nphelper-bot-server-bharf.ondigitalocean.app/api/queries/')
+      .get('https://hphelper-bot-server-q6dfg.ondigitalocean.app/api/queries/')
       .then(function (response) {
         // handle success
         console.log('Fetching completed!');
@@ -25,7 +25,7 @@ export const fetchQueries = () => {
 export const updateQuery = (query) => {
   return (dispatch) => {
     axios
-      .put('https://nphelper-bot-server-bharf.ondigitalocean.app/api/queries/', query)
+      .put('https://hphelper-bot-server-q6dfg.ondigitalocean.app/api/queries/', query)
       .then(function (response) {
         // handle success
         dispatch(updateQueryAction(response.data));
@@ -40,7 +40,7 @@ export const updateQuery = (query) => {
 export const deleteQuery = (query) => {
   return (dispatch) => {
     axios
-      .delete(`https://nphelper-bot-server-bharf.ondigitalocean.app/api/queries/${query}`)
+      .delete(`https://hphelper-bot-server-q6dfg.ondigitalocean.app/api/queries/${query}`)
       .then(function (response) {
         // handle success
         dispatch(deleteQueryAction(response.data));
@@ -54,7 +54,7 @@ export const deleteQuery = (query) => {
 export const deleteMany = (boolean) => {
   return (dispatch) => {
     axios
-      .post(`https://nphelper-bot-server-bharf.ondigitalocean.app/api/`, boolean)
+      .post(`https://hphelper-bot-server-q6dfg.ondigitalocean.app/api/`, boolean)
       .then(function (response) {
         console.log('Dropping complete!');
         // handle success
