@@ -23,7 +23,7 @@ async function startApp() {
   try {
     await mongoose.set('strictQuery', true);
     await mongoose.connect(process.env.DB_URL, { useUnifiedTopology: true, useNewUrlParser: true });
-    app.listen(port, () => console.log('Server starting'));
+    app.listen(process.env.PORT || port, () => console.log('Server starting'));
   } catch (error) {
     console.log(error.message);
   }
