@@ -1,31 +1,31 @@
 import * as message from '../const.js';
 
 export const checkValidPhoneNumber = async (ctx, inputData) => {
-  console.log('Case 2', inputData);
-  const number = inputData.match(/\d+/g)?.[0];
-  const lastName = inputData.match(/[A-Z]\w+|[а-щА-ЩЬьЮюЯяЇїІіЄєҐґ]+/g)?.[0];
+  const number = inputData.match(/0(66|67|68|98|97|50|73|93|99)\d{7}/g);
+  const lastName = inputData.match(/[A-Z]\w+|[а-щА-ЩЬьЮюЯяЇїІіЄєҐґ]+/g);
 
   // Missed number or lastName
-  if (!number || !lastName) {
+  if (number === null || lastName === null) {
     await ctx.replyWithHTML(message.actionsText[2]);
     return;
   }
-
+  const num = number.at(0);
+  const name = lastName.at(0);
   // Invoice number.length < 9 digits && > 13 digits
-  if (number.length < 9 || number.length > 13) {
+  if (num.length < 9 || num.length > 13) {
     await ctx.replyWithHTML(message.actionsText[3]);
     return;
   }
-
+  console.log(num, name);
   // Last name.length > 15 digits
-  if (lastName.length > 15) {
+  if (name.length > 15) {
     await ctx.replyWithHTML(message.actionsText[4]);
     return;
   }
 
   return {
-    number,
-    lastName,
+    number: num,
+    lastName: name,
     response: 'empty',
     completed: false,
     date: 'none',

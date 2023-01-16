@@ -1,66 +1,86 @@
 import { Telegraf, Markup } from 'telegraf';
 import * as dotenv from 'dotenv';
+dotenv.config();
 import axios from 'axios';
 
-dotenv.config();
+const bot = new Telegraf(process.env.BOT_TOKEN);
 
 import * as outputMsg from './const.js';
 import { checkValidPhoneNumber } from './services/PhoneNumber.js';
 import { checkValidInvoice } from './services/Invoice.js';
 
-const bot = new Telegraf(process.env.BOT_TOKEN);
+const sendDataToServer = async (data) => {
+  try {
+    const response = await axios.post('http://localhost:5000/api/queries/', data);
+    if (response.status !== 200) {
+      throw new Error('Failed to send data to the server');
+    }
+    return response.data;
+  } catch (err) {
+    console.log(err);
+    throw err;
+  }
+};
+
 bot.start(async (ctx) => {
-  await ctx.replyWithHTML(
-    `Привіт <b>${ctx.message.from.first_name ? ctx.message.from.first_name : 'Незнайомець'}</b>!`,
-    Markup.inlineKeyboard([
+  try {
+    const message = `Привіт <b>${
+      ctx.message.from.first_name ? ctx.message.from.first_name : 'Незнайомець'
+    }</b>!`;
+    const markup = Markup.inlineKeyboard([
       [Markup.button.callback('Отримати оплачену посилку', 'btn1')],
       [Markup.button.callback('Залишити відгук', 'btn2')],
-    ]),
-  );
+    ]);
+    await ctx.replyWithHTML(message, markup);
+  } catch (err) {
+    console.log(err);
+    throw err;
+  }
 });
 bot.help((ctx) => ctx.reply(outputMsg.commands));
 
 // Commands
 bot.command('get_paid', async (ctx) => {
   try {
-    await ctx.replyWithHTML(
-      outputMsg.commandText[0],
-      Markup.inlineKeyboard([
-        [
-          Markup.button.callback('Цифри накладної', 'btn3'),
-          Markup.button.callback('Номер телефону', 'btn4'),
-        ],
-      ]),
-    );
-  } catch (error) {
-    console.log(error.message);
+    const message = outputMsg.commandText[0];
+    const markup = Markup.inlineKeyboard([
+      [
+        Markup.button.callback('Цифри накладної', 'btn3'),
+        Markup.button.callback('Номер телефону', 'btn4'),
+      ],
+    ]);
+    await ctx.replyWithHTML(message, markup);
+  } catch (err) {
+    console.log(err);
+    throw err;
   }
 });
-// Funtions
 
 // Actions btn1, btn2
 bot.action('btn1', async (ctx) => {
   try {
     await ctx.answerCbQuery();
-    await ctx.replyWithHTML(
-      outputMsg.commandText[0],
-      Markup.inlineKeyboard([
-        [
-          Markup.button.callback('Цифри накладної', 'btn3'),
-          Markup.button.callback('Номер телефону', 'btn4'),
-        ],
-      ]),
-    );
-  } catch (error) {
-    console.log(error.message);
+    const message = outputMsg.commandText[0];
+    const markup = Markup.inlineKeyboard([
+      [
+        Markup.button.callback('Цифри накладної', 'btn3'),
+        Markup.button.callback('Номер телефону', 'btn4'),
+      ],
+    ]);
+    await ctx.replyWithHTML(message, markup);
+  } catch (err) {
+    console.log(err);
+    throw err;
   }
 });
+
 bot.action('btn2', async (ctx) => {
   try {
     await ctx.answerCbQuery();
     await ctx.replyWithHTML('Даний розділ в процесі розробки');
-  } catch (error) {
-    console.log(error.message);
+  } catch (err) {
+    console.log(err);
+    throw err;
   }
 });
 
@@ -80,69 +100,49 @@ const addActionBot = (name, message, checkFnc) => {
           const { text } = ctx.message;
           const result = await checkFnc(ctx, text);
           if (!result) return;
-          axios
-            .post('http://localhost:5000/api/queries/', result)
-            .then((res) => {
-              console.log('Case 1');
-              // handle success
-              const { _id, response } = res.data;
-              if (!response || !_id) return;
-              console.log('Send successfully');
-              return { _id, response };
-            })
-            .then((res) => {
-              // handle success
-              ctx.replyWithHTML(message.actionsText[6]);
-              const timerId = setInterval(
-                async () =>
-                  await axios
-                    .get(`http://localhost:5000/api/queries/${res._id}`)
-                    .then(async (res) => {
-                      console.log('Case 2');
-                      // handle success
-                      const { response } = res.data;
-                      await ctx.replyWithHTML(message.actionsText[7]);
+          const data = await sendDataToServer(result);
+          ctx.replyWithHTML(message.actionsText[6]);
+          console.log(data);
+          const timerId = setInterval(async () => {
+            try {
+              const checkResult = await axios.get(`http://localhost:5000/api/queries/${data._id}`);
+              await ctx.replyWithHTML(message.actionsText[7]);
+              console.log('Case 5', checkResult.data);
 
-                      if (response === 'empty' || '') return;
+              let { response } = checkResult.data;
+              if (response === 'empty' || '') return;
 
-                      if (response.toLowerCase() !== 'готово' || 'знайдено' || 'done' || 'ok') {
-                        clearInterval(timerId);
-                        return await ctx.replyWithHTML(response);
-                      }
-
-                      clearInterval(timerId);
-                      return await ctx.replyWithHTML(message.actionsText[9]);
-                    })
-                    .catch((error) => {
-                      // handle error
-                      clearInterval(timerId);
-                      console.log(error.message);
-                    }),
-                30000,
-              );
-              // Stop after 5 min
-              setTimeout((ctx) => {
-                ctx.replyWithHTML(
-                  'Можливо нам знадобиться більше часу для пошуку Вашої посилки або виникла іншого роду помилка. <b>Прошу зверніться до будь якого вільного оператора</b>',
-                );
-                clearInterval(timerId);
-              }, 300000);
-            })
-            .catch((error) => {
-              // handle error
-              console.log(error.message);
-            });
-        } catch (error) {
-          // handle error
-          console.log(error.message);
+              clearInterval(timerId);
+              const answer =
+                response.toLowerCase() !== 'ok' || 'done' || 'готово'
+                  ? message.actionsText[9]
+                  : response.charAt(0).toUpperCase() + response.slice(1) + '. ';
+              await ctx.replyWithHTML(answer);
+            } catch (err) {
+              console.log('Case 2', err);
+              clearInterval(timerId);
+              throw err;
+            }
+          }, 30000);
+          // Stop after 5 min
+          setTimeout((ctx) => {
+            ctx.replyWithHTML(
+              'Можливо нам знадобиться більше часу для пошуку Вашої посилки або виникла іншого роду помилка. <b>Прошу зверніться до будь якого вільного оператора</b>',
+            );
+            clearInterval(timerId);
+          }, 300000);
+        } catch (err) {
+          console.log('Case 3', err);
+          throw err;
         }
       });
-    } catch (error) {
-      // handle error
-      console.log(error.message);
+    } catch (err) {
+      console.log('Case 4');
+      throw err;
     }
   });
 };
+
 addActionBot('btn3', outputMsg, checkValidInvoice);
 addActionBot('btn4', outputMsg, checkValidPhoneNumber);
 

@@ -2,13 +2,6 @@ export const addQueriesAction = (payload) => {
   return { type: 'ADD_QUERIES', payload };
 };
 
-// export const createQueryAction = (payload) => {
-//   return {
-//     type: 'ADD_QUERY',
-//     payload,
-//   };
-// };
-
 export const updateQueryAction = (payload) => {
   return {
     type: 'UPDATE_QUERY',

@@ -6,8 +6,8 @@ import classes from '../styles/ClearBtn.module.css';
 import { deleteMany, fetchQueries } from '../asyncActions/asyncActions.js';
 
 function mapToProps(state) {
-  const queriesAmount = state.queries.filter((el) => el.completed === 'false');
-  const completedQueries = state.queries.filter((el) => el.completed === 'true');
+  const queriesAmount = state.queries.filter((el) => el.completed === false);
+  const completedQueries = state.queries.filter((el) => el.completed === true);
   return {
     queriesAmount,
     completedQueries,
@@ -21,6 +21,7 @@ function mapDispatch(dispatch) {
 }
 const ClearBtn = (props) => {
   const { queriesAmount, clearAllQueries, completedQueries, updateAllQueries } = props;
+  console.log(queriesAmount, completedQueries);
   return (
     <div className={classes.btnWrapper}>
       <div className={classes.textWrapper}>
