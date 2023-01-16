@@ -12,7 +12,7 @@ import { checkValidInvoice } from './services/Invoice.js';
 const sendDataToServer = async (data) => {
   try {
     const response = await axios.post(
-      'https://nphelper-bot-server-bharf.ondigitalocean.app/api/queries/',
+      'https://hphelper-bot-server-q6dfg.ondigitalocean.app/api/queries/',
       data,
     );
     if (response.status !== 200) {
