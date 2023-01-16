@@ -11,7 +11,10 @@ import { checkValidInvoice } from './services/Invoice.js';
 
 const sendDataToServer = async (data) => {
   try {
-    const response = await axios.post('https://nphelper-bot-server-bharf.ondigitalocean.app/api/queries/', data);
+    const response = await axios.post(
+      'https://nphelper-bot-server-bharf.ondigitalocean.app/api/queries/',
+      data,
+    );
     if (response.status !== 200) {
       throw new Error('Failed to send data to the server');
     }
@@ -105,7 +108,9 @@ const addActionBot = (name, message, checkFnc) => {
           console.log(data);
           const timerId = setInterval(async () => {
             try {
-              const checkResult = await axios.get(`https://nphelper-bot-server-bharf.ondigitalocean.app/api/queries/${data._id}`);
+              const checkResult = await axios.get(
+                `https://hphelper-bot-server-q6dfg.ondigitalocean.app/api/queries/${data._id}`,
+              );
               await ctx.replyWithHTML(message.actionsText[7]);
               console.log('Case 5', checkResult.data);
 
